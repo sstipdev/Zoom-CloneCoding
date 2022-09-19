@@ -1,3 +1,6 @@
+const messageList = document.querySelector("ul");
+const messageForm = document.querySelector("form");
+
 const socket = new WebSocket(`ws://${window.location.host}`);
 
 socket.addEventListener("open", () => {
@@ -12,6 +15,11 @@ socket.addEventListener("close", () => {
   console.log("서버로부터 연결이 종료되었습니다. ❌");
 });
 
-setTimeout(() => {
-  socket.send("브라우저로부터 메세지가 왔다 !");
-}, 10000);
+const handleSubmit = (event) => {
+  event.preventDefault();
+  const input = messageForm.querySelector("input");
+  socket.send(input.value);
+  input.value = "";
+};
+
+messageForm.addEventListener("submit", handleSubmit);

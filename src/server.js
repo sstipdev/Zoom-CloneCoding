@@ -17,11 +17,16 @@ const handleListen = () => console.log(`🚀 Listening on http://localhost:${POR
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const fakeDatabase = [];
+
 wss.on("connection", (socket) => {
+  fakeDatabase.push(socket);
   console.log("Connected to Browser ✅");
   socket.on("close", () => console.log("Disconnected from the Browser ❌"));
-  socket.on("message", (message) => console.log(message.toString("utf8")));
-  socket.send("hello!");
+  socket.on("message", (message) => {
+    fakeDatabase.forEach((aSocket) => aSocket.send(message));
+    console.log(message.toString("utf8"));
+  });
 });
 
 server.listen(PORT, handleListen);
