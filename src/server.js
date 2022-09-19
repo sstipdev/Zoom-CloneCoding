@@ -21,11 +21,17 @@ const fakeDatabase = [];
 
 wss.on("connection", (socket) => {
   fakeDatabase.push(socket);
+  socket["nickname"] = "익명";
   console.log("Connected to Browser ✅");
   socket.on("close", () => console.log("Disconnected from the Browser ❌"));
-  socket.on("message", (message) => {
-    fakeDatabase.forEach((aSocket) => aSocket.send(message));
-    console.log(message.toString("utf8"));
+  socket.on("message", (msg) => {
+    const message = JSON.parse(msg);
+    switch (message.type) {
+      case "new_message":
+        fakeDatabase.forEach((aSocket) => aSocket.send(`${socket.nickname}: ${message.payload}`));
+      case "nickname":
+        socket["nickname"] = message.payload;
+    }
   });
 });
 
