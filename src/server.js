@@ -1,5 +1,5 @@
 import http from "http";
-import WebSocket from "ws";
+import SocketIO from "socket.io";
 import express from "express";
 
 const app = express();
@@ -14,25 +14,36 @@ app.get("/*", (req, res) => res.redirect("/"));
 
 const handleListen = () => console.log(`🚀 Listening on http://localhost:${PORT}`);
 
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const httpServer = http.createServer(app);
+const io = SocketIO(httpServer);
 
-const fakeDatabase = [];
-
-wss.on("connection", (socket) => {
-  fakeDatabase.push(socket);
-  socket["nickname"] = "익명";
-  console.log("Connected to Browser ✅");
-  socket.on("close", () => console.log("Disconnected from the Browser ❌"));
-  socket.on("message", (msg) => {
-    const message = JSON.parse(msg);
-    switch (message.type) {
-      case "new_message":
-        fakeDatabase.forEach((aSocket) => aSocket.send(`${socket.nickname}: ${message.payload}`));
-      case "nickname":
-        socket["nickname"] = message.payload;
-    }
+io.on("connection", (socket) => {
+  socket.on("enter_room", (msg, done) => {
+    console.log(msg);
+    setTimeout(() => {
+      done();
+    }, 3000);
   });
 });
 
-server.listen(PORT, handleListen);
+// const wss = new WebSocket.Server({ server });
+
+// const fakeDatabase = [];
+
+// wss.on("connection", (socket) => {
+//   fakeDatabase.push(socket);
+//   socket["nickname"] = "익명";
+//   console.log("Connected to Browser ✅");
+//   socket.on("close", () => console.log("Disconnected from the Browser ❌"));
+//   socket.on("message", (msg) => {
+//     const message = JSON.parse(msg);
+//     switch (message.type) {
+//       case "new_message":
+//         fakeDatabase.forEach((aSocket) => aSocket.send(`${socket.nickname}: ${message.payload}`));
+//       case "nickname":
+//         socket["nickname"] = message.payload;
+//     }
+//   });
+// });
+
+httpServer.listen(PORT, handleListen);
