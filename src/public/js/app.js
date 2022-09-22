@@ -8,6 +8,13 @@ room.hidden = true;
 
 let roomName;
 
+const addMessage = (message) => {
+  const ul = room.querySelector("ul");
+  const li = document.createElement("li");
+  li.innerText = message;
+  ul.appendChild(li);
+};
+
 const showRoom = (msg) => {
   welcome.hidden = true;
   room.hidden = false;
@@ -18,9 +25,13 @@ const showRoom = (msg) => {
 const handleRoomSubmit = (evnet) => {
   evnet.preventDefault();
   const input = form.querySelector("input");
-  socket.emit("enter_room", { payload: input.value }, showRoom);
+  socket.emit("enter_room", input.value, showRoom);
   roomName = input.value;
   input.value = "";
 };
 
 form.addEventListener("submit", handleRoomSubmit);
+
+socket.on("welcome", () => {
+  addMessage("어서오세요 !");
+});
