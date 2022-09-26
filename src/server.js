@@ -17,6 +17,23 @@ const handleListen = () => console.log(`🚀 Listening on http://localhost:${POR
 const httpServer = http.createServer(app);
 const io = SocketIO(httpServer);
 
+const publicRooms = () => {
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = io;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) === undefined) {
+      publicRooms.push(key);
+    }
+  });
+  return publicRooms;
+  // const sids = io.sockets.adapter.sids;
+  // const rooms = io.sockets.adapter.rooms;
+};
+
 io.on("connection", (socket) => {
   socket["nickname"] = "익명";
   socket.onAny((event) => console.log("소켓 이벤트 :", event));
@@ -24,11 +41,15 @@ io.on("connection", (socket) => {
   socket.on("enter_room", (roomName, nickname, done) => {
     socket["nickname"] = nickname;
     socket.join(roomName);
-    socket.to(roomName).emit("welcome", socket.nickname);
     done();
+    socket.to(roomName).emit("welcome", socket.nickname);
+    io.sockets.emit("room_change", publicRooms());
   });
   socket.on("disconnecting", () => {
     socket.rooms.forEach((room) => socket.to(room).emit("bye", socket.nickname));
+  });
+  socket.on("disconnect", () => {
+    io.sockets.emit("room_change", publicRooms());
   });
 
   socket.on("new_message", (msg, room, done) => {
