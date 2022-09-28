@@ -9,26 +9,10 @@ html(lang="en")
     body 
         header 
             h1 Hello!
-        main            
-            div#welcome
-                form
-                    input#roomName(placeholder="방 제목" required, type="text")
-                    input#name(placeholder="닉네임" required, type="text")
-                    button 방 입장
-                h4 공개방
-                ul
-                    
-            
-            div#room
-                h3
-                ul
-                form#name
-                    input(placeholder="닉네임" required, type="text")
-                    button 변경
-                form#msg
-                    input(placeholder="메세지" required, type="text")
-                    button 전송
-
-    
-    script(src="/socket.io/socket.io.js") 
-    script(src="/public/js/app.js") 
+        main
+            div#myStream
+                video#myFace(autoplay, playsinline, width="400", height="400")
+                button#mute 음소거
+                button#camera 카메라 종료
+        script(src="/socket.io/socket.io.js") 
+        script(src="/public/js/app.js") 
